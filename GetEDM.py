@@ -225,7 +225,7 @@ for CHO in edmroot.iter('edm:providedCHO'):
     if type is not '':
         dcType.text = type
     else:
-        dcType.text = 'edit here'
+        dcType.text = 'insert dc:type here'
 
 ET.dump(edmroot)
 tree = ET.ElementTree(edmroot)
