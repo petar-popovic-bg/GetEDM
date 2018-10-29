@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement
+import wdata
 
 comarcFileName = input('Address to COMARCXML file: ')
 type = input('<dc:type> for whole set: ')
@@ -226,6 +227,8 @@ for CHO in edmroot.iter('edm:providedCHO'):
         dcType.text = type
     else:
         dcType.text = 'insert dc:type here'
+    for subject in CHO.findall('dc:subject'):
+        wdataSubject = SubElement(CHO, 'dc:subject', {'rdf:resource': wdata.searchWikidata(subject.text)})
 
 ET.dump(edmroot)
 tree = ET.ElementTree(edmroot)
