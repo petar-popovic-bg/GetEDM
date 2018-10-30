@@ -2,22 +2,24 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement
 import wdata
 
-comarcFileName = input('Address to COMARCXML file: ')
+# comarcFileName = input('Address to COMARCXML file: ')
+comarcFileName = 'nbs8_comarc.xml'
 type = input('<dc:type> for whole set: ')
 tree = ET.parse(comarcFileName)
 
 root = tree.getroot()
 
-edmrootAttributesDict = {'xmlns:rdf':'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-                         'xmlns:dc':'http://purl.org/dc/elements/1.1',
-                         'xmlns:dcterms':'http://purl.org/dc/terms',
-                         'xmlns:edm':'http://www.europeana.eu/schemas/ed',
-                         'xmlns:ore':'http://www.openarchives.org/ore/terms'
+edmrootAttributesDict = {'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+                         'xmlns:dc': 'http://purl.org/dc/elements/1.1',
+                         'xmlns:dcterms': 'http://purl.org/dc/terms',
+                         'xmlns:edm': 'http://www.europeana.eu/schemas/ed',
+                         'xmlns:ore': 'http://www.openarchives.org/ore/terms'
                          }
 
 edmroot = Element('rdf:RDF', edmrootAttributesDict)
 
-def setTextLang (textLang):
+
+def setTextLang(textLang):
     if textLang == 'srp' or textLang == 'scc':
         textLang = 'sr'
     elif textLang == 'ger':
@@ -36,6 +38,7 @@ def setTextLang (textLang):
         return textLang
     return textLang
 
+
 for record in root.findall('record'):
     aggregates = Element('ore:aggregates')
 
@@ -44,12 +47,12 @@ for record in root.findall('record'):
     else:
         link = ''
 
-    providedCHO = SubElement(aggregates, 'edm:providedCHO', {'rdf:about':link})
+    providedCHO = SubElement(aggregates, 'edm:providedCHO', {'rdf:about': link})
 
     textLang = record.find("datafield[@tag='101']/subfield[@code='a']").text
     textLang = setTextLang(textLang)
 
-    #dc:contributor
+    # dc:contributor
     for contrib in record.findall("datafield[@tag='702']"):
         dcContributor = SubElement(providedCHO, 'dc:contributor', {'xml:lang': 'sr'})
         dcContributor.text = ''
@@ -66,7 +69,7 @@ for record in root.findall('record'):
             dcContributor.text += contrib.find("subfield[@code='a']").text
         dcContributor.text = dcContributor.text.lstrip()
 
-    #dc:creator
+    # dc:creator
     for creator in record.findall("datafield[@tag='700']"):
         dcCreator = SubElement(providedCHO, 'dc:creator', {'xml:lang': 'sr'})
         dcCreator.text = ''
@@ -83,36 +86,36 @@ for record in root.findall('record'):
             dcCreator.text += creator.find("subfield[@code='a']").text
         dcCreator.text = dcCreator.text.lstrip()
 
-    #dc:descrption
+    # dc:description
     for description in record.findall("datafield[@tag='300']/subfield"):
-        dcDescription = SubElement(providedCHO, 'dc:description', {'xml:lang':'sr'})
+        dcDescription = SubElement(providedCHO, 'dc:description', {'xml:lang': 'sr'})
         dcDescription.text = description.text
     for description in record.findall("datafield[@tag='330']/subfield[@code='a']"):
-        dcDescription = SubElement(providedCHO, 'dc:description', {'xml:lang':'sr'})
+        dcDescription = SubElement(providedCHO, 'dc:description', {'xml:lang': 'sr'})
         dcDescription.text = description.text
 
-    #dc:format
+    # dc:format
     for format in record.findall("datafield[@tag='215']/subfield"):
-        dcFormat = SubElement(providedCHO, 'dc:format', {'xml:lang':'sr'})
+        dcFormat = SubElement(providedCHO, 'dc:format', {'xml:lang': 'sr'})
         dcFormat.text = format.text
 
-    #dc:identifier
-    # dcIdentifier = SubElement(providedCHO, 'dc:identifier')
-    # dcIdentifier.text = record.find("datafield[@tag='000']/subfield[@code='x']").text
+    # dc:identifier
+    dcIdentifier = SubElement(providedCHO, 'dc:identifier')
+    dcIdentifier.text = record.find("datafield[@tag='000']/subfield[@code='x']").text
 
-    #dc:language
+    # dc:language
     for language in record.findall("datafield[@tag='101']/subfield[@code='a']"):
         dcLanguage = SubElement(providedCHO, 'dc:language')
         dcLanguage.text = setTextLang(language.text)
 
-    #dc:publisher
+    # dc:publisher
     for publisher in record.findall("datafield[@tag='210']/subfield[@code='c']"):
-        dcPublisher = SubElement(providedCHO, 'dc:publisher', {'xml:lang':'sr'})
+        dcPublisher = SubElement(providedCHO, 'dc:publisher', {'xml:lang': 'sr'})
         dcPublisher.text = publisher.text
 
-    #dc:subject
+    # dc:subject
     for subject in record.findall("datafield[@tag='600']"):
-        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang':'sr'})
+        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang': 'sr'})
         dcSubject.text = ''
         subjects = []
         if subject.find("subfield[@code='b']") is not None:
@@ -129,76 +132,79 @@ for record in root.findall('record'):
         dcSubject.text = ''.join(subjects)
 
     for subject in record.findall("datafield[@tag='601']/subfield"):
-        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang':'sr'})
+        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang': 'sr'})
         dcSubject.text = subject.text
     for subject in record.findall("datafield[@tag='602']/subfield"):
-        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang':'sr'})
+        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang': 'sr'})
         dcSubject.text = subject.text
     for subject in record.findall("datafield[@tag='605']/subfield"):
-        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang':'sr'})
+        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang': 'sr'})
         dcSubject.text = subject.text
     for subject in record.findall("datafield[@tag='606']/subfield"):
-        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang':'sr'})
+        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang': 'sr'})
         dcSubject.text = subject.text
     for subject in record.findall("datafield[@tag='609']/subfield"):
-        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang':'sr'})
+        dcSubject = SubElement(providedCHO, 'dc:subject', {'xml:lang': 'sr'})
         dcSubject.text = subject.text
 
-
-    #dc:title
+    # dc:title
     if record.find("datafield[@tag='200']/subfield[@code='e']") is not None:
-        dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang':textLang})
+        dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang': textLang})
         dcTitle.text = ''.join([record.find("datafield[@tag='200']/subfield[@code='a']").text,
                                 ' ', record.find("datafield[@tag='200']/subfield[@code='e']").text])
     elif record.find("datafield[@tag='200']/subfield[@code='i']") is not None:
-        dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang':textLang})
+        dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang': textLang})
         dcTitle.text = ''.join([record.find("datafield[@tag='200']/subfield[@code='a']").text,
                                 ' ', record.find("datafield[@tag='200']/subfield[@code='i']").text])
-    elif record.find("datafield[@tag='200']/subfield[@code='e']") is not None and record.find("datafield[@tag='200']/subfield[@code='i']"):
-        dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang':textLang})
+    elif record.find("datafield[@tag='200']/subfield[@code='e']") is not None and record.find(
+            "datafield[@tag='200']/subfield[@code='i']"):
+        dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang': textLang})
         dcTitle.text = ''.join([record.find("datafield[@tag='200']/subfield[@code='a']").text,
                                 ' ', record.find("datafield[@tag='200']/subfield[@code='e']").text,
                                 ' ', record.find("datafield[@tag='200']/subfield[@code='i']").text])
     else:
         for title in record.findall("datafield[@tag='200']/subfield[@code='a']"):
-            dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang':textLang})
+            dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang': textLang})
             dcTitle.text = title.text
 
-    #dcterms:alternative
+    # dcterms:alternative
     for element in record.findall("datafield[@tag='200']/subfield[@code='d']"):
-        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative', {'xml:lang':record.find("datafield[@tag='200']/subfield[@code='z']").text})
+        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative',
+                                        {'xml:lang': record.find("datafield[@tag='200']/subfield[@code='z']").text})
         dctermsAlternative.text = element.text
     for element in record.findall("datafield[@tag='517']/subfield[@code='a']"):
-        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative', {'xml:lang':'sr'})
+        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative', {'xml:lang': 'sr'})
         dctermsAlternative.text = element.text
     for element in record.findall("datafield[@tag='541']/subfield[@code='a']"):
-        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative', {'xml:lang':record.find("datafield[@tag='541']/subfield[@code='z']")})
+        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative',
+                                        {'xml:lang': record.find("datafield[@tag='541']/subfield[@code='z']")})
         dctermsAlternative.text = element.text
 
-    #dcterms:created
+    # dcterms:created
     for created in record.findall("datafield[@tag='210']/subfield[@code='h']"):
         dctermsCreated = SubElement(providedCHO, 'dcterms:created')
         dctermsCreated.text = created.text
 
-    #dcterms:issued
+    # dcterms:issued
     for issued in record.findall("datafield[@tag='210']/subfield[@code='d']"):
         dctermsIssued = SubElement(providedCHO, 'dcterms:issued')
         dctermsIssued.text = issued.text
 
-    #dcterms:spatial
+    # dcterms:spatial
     for spatial in record.findall("datafield[@tag='607']/subfield[@code='a']"):
-        dctermsSpatial = SubElement(providedCHO, 'dcterms:spatial', {'xml:lang':'sr'})
+        dctermsSpatial = SubElement(providedCHO, 'dcterms:spatial', {'xml:lang': 'sr'})
         dctermsSpatial.text = spatial.text
 
-    #dcterms:temporal
+    # dcterms:temporal
     for temporal in record.findall("datafield[@tag='608']/subfield"):
         dctermsTemporal = SubElement(providedCHO, 'dcterms:temporal', {'xml:lang': 'sr'})
         dctermsTemporal.text = temporal.text
 
-    #edm:currentLocation
-    edmCurrentLocation = SubElement(providedCHO, 'edm:currentLocation', {'rdf:resource':'http://sws.geonames.org/792680/'})
+    # edm:currentLocation
+    edmCurrentLocation = SubElement(providedCHO, 'edm:currentLocation',
+                                    {'rdf:resource': 'http://sws.geonames.org/792680/'})
 
-    #edm:type
+    # edm:type
     edmTypeVal = record.find("datafield[@tag='001']/subfield[@code='b']").text
     edmType = SubElement(providedCHO, 'edm:type')
     if edmTypeVal == 'k' or edmTypeVal == 'e' or edmTypeVal == 'f':
@@ -206,20 +212,19 @@ for record in root.findall('record'):
     else:
         edmType.text = 'TEXT'
 
+    Aggregation = SubElement(aggregates, 'ore:Aggregation', {'rdf:about': link})
 
-    Aggregation = SubElement(aggregates, 'ore:Aggregation', {'rdf:about':link})
-
-    aggregatedCHO = SubElement(Aggregation, 'edm:aggregatedCHO', {'rdf:resource':link})
+    aggregatedCHO = SubElement(Aggregation, 'edm:aggregatedCHO', {'rdf:resource': link})
     provider = SubElement(Aggregation, 'edm:provider')
     provider.text = 'National Library of Serbia'
     dataProvider = SubElement(Aggregation, 'edm:dataProvider')
     dataProvider.text = 'National Library of Serbia'
-    rights = SubElement(Aggregation, 'edm:rights', {'rdf:resource': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'})
-    isShownAt = SubElement(Aggregation, 'edm:isShownAt', {'rdf:resource':link})
-    isShownBy = SubElement(Aggregation, 'edm:isShownBy', {'rdf:resource':''.join([link,'?pageIndex=00001'])})
+    rights = SubElement(Aggregation, 'edm:rights',
+                        {'rdf:resource': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'})
+    isShownAt = SubElement(Aggregation, 'edm:isShownAt', {'rdf:resource': link})
+    isShownBy = SubElement(Aggregation, 'edm:isShownBy', {'rdf:resource': ''.join([link, '?pageIndex=00001'])})
+    Object = SubElement(Aggregation, 'edm:Object', {'rdf:resource': ''.join([link, '?pageIndex=thumb'])})
     edmroot.append(aggregates)
-
-
 
 for CHO in edmroot.iter('edm:providedCHO'):
     dcType = SubElement(CHO, 'dc:type', {'xml:lang': 'sr'})
@@ -227,8 +232,8 @@ for CHO in edmroot.iter('edm:providedCHO'):
         dcType.text = type
     else:
         dcType.text = 'insert dc:type here'
-    for subject in CHO.findall('dc:subject'):
-        wdataSubject = SubElement(CHO, 'dc:subject', {'rdf:resource': wdata.searchWikidata(subject.text)})
+    # for subject in CHO.findall('dc:subject'):
+        # wdataSubject = SubElement(CHO, 'dc:subject', {'rdf:resource': wdata.searchWikidata(subject.text)})
 
 ET.dump(edmroot)
 tree = ET.ElementTree(edmroot)
@@ -238,4 +243,4 @@ tree.write('data_edm.xml', encoding='UTF-8')
 # tree.write('EDM.xml', encoding='UTF-8')
 
 
-#pprint.pprint(ET.tostring(edmroot))
+# pprint.pprint(ET.tostring(edmroot))
