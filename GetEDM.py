@@ -1,6 +1,8 @@
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement
 import wdata
+import httpcheck
+
 
 comarcFileName = input('Address to COMARCXML file: ')
 type = input('<dc:type> for whole set: ')
@@ -41,6 +43,10 @@ for record in root.findall('record'):
 
     if record.find("datafield[@tag='856']/subfield[@code='u']") is not None:
         link = record.find("datafield[@tag='856']/subfield[@code='u']").text
+        if httpcheck.checklink(link):
+            pass
+        else:
+            link = link + ' ERROR!'
     else:
         link = ''
 
