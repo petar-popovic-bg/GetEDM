@@ -1,12 +1,10 @@
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement
-import wdata
-import httpcheck
+import requests
 
-
-# comarcFileName = input('Address to COMARCXML file: ')
-comarcFileName = 'nbs8_comarc.xml'
+comarcFileName = input('Address to COMARCXML file: ')
 type = input('<dc:type> for whole set: ')
+rightsStatement = input('<edm:rights> for whole set: ')
 tree = ET.parse(comarcFileName)
 
 root = tree.getroot()
@@ -46,7 +44,7 @@ for record in root.findall('record'):
 
     if record.find("datafield[@tag='856']/subfield[@code='u']") is not None:
         link = record.find("datafield[@tag='856']/subfield[@code='u']").text
-        if httpcheck.checklink(link):
+        if requests.head(link).status_code == 200:
             pass
         else:
             link = link + ' ERROR!'
@@ -157,17 +155,17 @@ for record in root.findall('record'):
     if record.find("datafield[@tag='200']/subfield[@code='e']") is not None:
         dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang': textLang})
         dcTitle.text = ''.join([record.find("datafield[@tag='200']/subfield[@code='a']").text,
-                                ' ', record.find("datafield[@tag='200']/subfield[@code='e']").text])
+                                ' : ', record.find("datafield[@tag='200']/subfield[@code='e']").text])
     elif record.find("datafield[@tag='200']/subfield[@code='i']") is not None:
         dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang': textLang})
         dcTitle.text = ''.join([record.find("datafield[@tag='200']/subfield[@code='a']").text,
-                                ' ', record.find("datafield[@tag='200']/subfield[@code='i']").text])
+                                ' : ', record.find("datafield[@tag='200']/subfield[@code='i']").text])
     elif record.find("datafield[@tag='200']/subfield[@code='e']") is not None and record.find(
             "datafield[@tag='200']/subfield[@code='i']"):
         dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang': textLang})
         dcTitle.text = ''.join([record.find("datafield[@tag='200']/subfield[@code='a']").text,
-                                ' ', record.find("datafield[@tag='200']/subfield[@code='e']").text,
-                                ' ', record.find("datafield[@tag='200']/subfield[@code='i']").text])
+                                ' : ', record.find("datafield[@tag='200']/subfield[@code='e']").text,
+                                ' : ', record.find("datafield[@tag='200']/subfield[@code='i']").text])
     else:
         for title in record.findall("datafield[@tag='200']/subfield[@code='a']"):
             dcTitle = SubElement(providedCHO, 'dc:title', {'xml:lang': textLang})
@@ -175,15 +173,21 @@ for record in root.findall('record'):
 
     # dcterms:alternative
     for element in record.findall("datafield[@tag='200']/subfield[@code='d']"):
-        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative',
-                                        {'xml:lang': record.find("datafield[@tag='200']/subfield[@code='z']").text})
+        try:
+            xlang = record.find("datafield[@tag='200']/subfield[@code='z']").text
+        except:
+            xlang = 'sr'
+        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative', {'xml:lang': xlang})
         dctermsAlternative.text = element.text
     for element in record.findall("datafield[@tag='517']/subfield[@code='a']"):
         dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative', {'xml:lang': 'sr'})
         dctermsAlternative.text = element.text
     for element in record.findall("datafield[@tag='541']/subfield[@code='a']"):
-        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative',
-                                        {'xml:lang': record.find("datafield[@tag='541']/subfield[@code='z']")})
+        try:
+            xlang = record.find("datafield[@tag='541']/subfield[@code='z']")
+        except:
+            xlang = 'sr'
+        dctermsAlternative = SubElement(providedCHO, 'dcterms:alternative', {'xml:lang': xlang})
         dctermsAlternative.text = element.text
 
     # dcterms:created
@@ -226,7 +230,7 @@ for record in root.findall('record'):
     dataProvider = SubElement(Aggregation, 'edm:dataProvider')
     dataProvider.text = 'National Library of Serbia'
     rights = SubElement(Aggregation, 'edm:rights',
-                        {'rdf:resource': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'})
+                        {'rdf:resource': rightsStatement})
     isShownAt = SubElement(Aggregation, 'edm:isShownAt', {'rdf:resource': link})
     isShownBy = SubElement(Aggregation, 'edm:isShownBy', {'rdf:resource': ''.join([link, '?pageIndex=00001'])})
     Object = SubElement(Aggregation, 'edm:Object', {'rdf:resource': ''.join([link, '?pageIndex=thumb'])})
@@ -239,14 +243,10 @@ for CHO in edmroot.iter('edm:providedCHO'):
     else:
         dcType.text = 'insert dc:type here'
     # for subject in CHO.findall('dc:subject'):
-        # wdataSubject = SubElement(CHO, 'dc:subject', {'rdf:resource': wdata.searchWikidata(subject.text)})
+    # wdataSubject = SubElement(CHO, 'dc:subject', {'rdf:resource': wdata.searchWikidata(subject.text)})
 
-ET.dump(edmroot)
 tree = ET.ElementTree(edmroot)
-tree.write('data_edm.xml', encoding='UTF-8')
+tree.write(input('EDM Collection filename: '), encoding='UTF-8')
+print('\n\nFile droped!\n\n--- END ---\n\n')
 
-# tree = ET.ElementTree(edmroot)
-# tree.write('EDM.xml', encoding='UTF-8')
-
-
-# pprint.pprint(ET.tostring(edmroot))
+input('Press enter to exit')
