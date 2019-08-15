@@ -71,6 +71,9 @@ for record in root.findall('record'):
         if contrib.find("subfield[@code='a']") is not None:
             dcContributor.text += ' '
             dcContributor.text += contrib.find("subfield[@code='a']").text
+        if contrib.find("subfield[@code='f']") is not None:
+            dcContributor.text += ' '
+            dcContributor.text += contrib.find("subfield[@code='f']").text
         dcContributor.text = dcContributor.text.lstrip()
 
     # dc:creator
@@ -88,7 +91,30 @@ for record in root.findall('record'):
         if creator.find("subfield[@code='a']") is not None:
             dcCreator.text += ' '
             dcCreator.text += creator.find("subfield[@code='a']").text
+        if creator.find("subfield[@code='f']") is not None:
+            dcCreator.text += ' '
+            dcCreator.text += creator.find("subfield[@code='f']").text
         dcCreator.text = dcCreator.text.lstrip()
+
+    # koautor ali ne contributor
+    for creator2 in record.findall("datafield[@tag='701']"):
+        dcCreator2 = SubElement(providedCHO, 'dc:creator', {'xml:lang': 'sr'})
+        dcCreator2.text = ''
+        if creator2.find("subfield[@code='c']") is not None:
+            dcCreator2.text += creator2.find("subfield[@code='c']").text
+        if creator2.find("subfield[@code='b']") is not None:
+            dcCreator2.text += ' '
+            dcCreator2.text += creator2.find("subfield[@code='b']").text
+        if creator2.find("subfield[@code='d']") is not None:
+            dcCreator2.text += ' '
+            dcCreator2.text += creator2.find("subfield[@code='d']").text
+        if creator2.find("subfield[@code='a']") is not None:
+            dcCreator2.text += ' '
+            dcCreator2.text += creator2.find("subfield[@code='a']").text
+        if creator2.find("subfield[@code='f']") is not None:
+            dcCreator2.text += ' '
+            dcCreator2.text += creator2.find("subfield[@code='f']").text
+        dcCreator2.text = dcCreator2.text.lstrip()
 
     # dc:description
     for description in record.findall("datafield[@tag='300']/subfield"):
@@ -196,7 +222,7 @@ for record in root.findall('record'):
         dctermsCreated.text = created.text
 
     # dcterms:issued
-    for issued in record.findall("datafield[@tag='210']/subfield[@code='d']"):
+    for issued in record.findall("datafield[@tag='100']/subfield[@code='c']"):
         dctermsIssued = SubElement(providedCHO, 'dcterms:issued')
         dctermsIssued.text = issued.text
 
@@ -221,6 +247,12 @@ for record in root.findall('record'):
         edmType.text = 'IMAGE'
     else:
         edmType.text = 'TEXT'
+
+    # NOVA POLJA
+
+    # for format in record.findall("datafield[@tag='215']/subfield"):
+    #     dcFormat = SubElement(providedCHO, 'dc:format', {'xml:lang': 'sr'})
+    #     dcFormat.text = format.text
 
     Aggregation = SubElement(aggregates, 'ore:Aggregation', {'rdf:about': link})
 
